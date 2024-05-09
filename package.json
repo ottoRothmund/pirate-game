@@ -1,0 +1,12 @@
+{
+  "name": "pirate-game",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/ottoRothmund/pirate-game.git",
+  "author": "ottoRothmund <ottorothmund@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

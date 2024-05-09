@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Multiplayer Sailing Game</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    const socket = io();
+
+    // Initialize Phaser game
+    const config = {
+      mode: Phaser.Scale.Fit,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      scene: {
+        preload: preload,
+        create: create,
+        update: update
+      },
+      physics: {
+        default: 'arcade',
+        arcade: {
+          debug: false // Set to true for debugging physics
+        }
+      }
+    };
+
+    const game = new Phaser.Game(config);
+    let player, otherPlayers = {};
+    let cursors;
+    let dropAnchorButton;
+
+    function preload() {
+      this.load.image('ship', 'https://phaser.io/images/phaser3/sprites/spaceship.png');
+    }
+
+    function create() {
+      // Add player
+      player = this.physics.add.sprite(400, 300, 'ship').setOrigin(0.5, 0.5).setScale(0.5); // Scale down ship size
+
+      // Movement controls
+      cursors = this.input.keyboard.createCursorKeys();
+
+      // Add drop anchor button
+      dropAnchorButton = this.add.text(20, 20, 'Drop Anchor', { fill: '#ffffff' }).setInteractive();
+      dropAnchorButton.on('pointerdown', () => {
+        player.body.setVelocity(0); // Stop the ship abruptly
+      });
+
+      // Handle new players
+      socket.on('currentPlayers', (players) => {
+        Object.keys(players).forEach((id) => {
+          if (id !== socket.id) {
+            addOtherPlayer(this, players[id]);
+          }
+        });
+      });
+
+      socket.on('newPlayer', (playerInfo) => {
+        addOtherPlayer(this, playerInfo);
+      });
+
+      socket.on('playerMoved', (playerInfo) => {
+        if (otherPlayers[playerInfo.id]) {
+          otherPlayers[playerInfo.id].x = playerInfo.x;
+          otherPlayers[playerInfo.id].y = playerInfo.y;
+          otherPlayers[playerInfo.id].angle = playerInfo.angle;
+        }
+      });
+
+      socket.on('playerDisconnected', (id) => {
+        if (otherPlayers[id]) {
+          otherPlayers[id].destroy();
+          delete otherPlayers[id];
+        }
+      });
+    }
+
+    function update() {
+      // Handle player movement
+      if (cursors.up.isDown) {
+        // Accelerate in the direction the ship is facing (slower acceleration)
+        this.physics.velocityFromRotation(player.rotation, 200, player.body.acceleration);
+      } else {
+        // Slow down if not accelerating (higher inertia)
+        player.body.setAcceleration(0);
+      }
+
+      if (cursors.lef < !DOCTYPE html >
+        <html lang="en">
+
+          <head>
+            <meta charset="UTF-8">
+              <title>Multiplayer Sailing Game</title>
+              <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+  </head>
+
+  <body>
+    <script>
+                const socket = io();
+
+                // Initialize Phaser game
+                const config = {
+                  mode: Phaser.Scale.Fit,
+                width: window.innerWidth,
+                height: window.innerHeight,
+                scene: {
+                  preload: preload,
+                create: create,
+                update: update
+            },
+                physics: {
+              default: 'arcade',
+                arcade: {
+                  debug: false // Set to true for debugging physics
+              }
+            }
+          };
+
+                const game = new Phaser.Game(config);
+                let player, otherPlayers = { };
+                let cursors;
+                let dropAnchorButton;
+
+                function preload() {
+                  this.load.image('ship', 'https://phaser.io/images/phaser3/sprites/spaceship.png');
+          }
+
+                function create() {
+                  // Add player
+                  player = this.physics.add.sprite(400, 300, 'ship').setOrigin(0.5, 0.5).setScale(0.5); // Scale down ship size
+
+                // Movement controls
+                cursors = this.input.keyboard.createCursorKeys();
+
+                // Add drop anchor button
+                dropAnchorButton = this.add.text(20, 20, 'Drop Anchor', {fill: '#ffffff' }).setInteractive();
+            dropAnchorButton.on('pointerdown', () => {
+                  player.body.setVelocity(0); // Stop the ship abruptly
+            });
+
+            // Handle new players
+            socket.on('currentPlayers', (players) => {
+                  Object.keys(players).forEach((id) => {
+                    if (id !== socket.id) {
+                      addOtherPlayer(this, players[id]);
+                    }
+                  });
+            });
+      
+            socket.on('newPlayer', (playerInfo) => {
+                  addOtherPlayer(this, playerInfo);
+            });
+      
+            socket.on('playerMoved', (playerInfo) => {
+              if (otherPlayers[playerInfo.id]) {
+                  otherPlayers[playerInfo.id].x = playerInfo.x;
+                otherPlayers[playerInfo.id].y = playerInfo.y;
+                otherPlayers[playerInfo.id].angle = playerInfo.angle;
+              }
+            });
+      
+            socket.on('playerDisconnected', (id) => {
+              if (otherPlayers[id]) {
+                  otherPlayers[id].destroy();
+                delete otherPlayers[id];
+              }
+            });
+          }
+
+                function update() {
+            // Handle player movement
+            if (cursors.up.isDown) {
+                  // Accelerate in the direction the ship is facing (slower acceleration)
+                  this.physics.velocityFromRotation(player.rotation, 200, player.body.acceleration);
+            } else {
+                  // Slow down if not accelerating (higher inertia)
+                  player.body.setAcceleration(0);
+            }
+
+                if (cursors.left.isDown) {
+                  // Rotate left
+                  player.setAngularVelocity(-100); // Reduced rotation speed
+            } else if (cursors.right.isDown) {
+                  // Rotate right
+                  player.setAngularVelocity(100); // Reduced rotation speed
+            } else {
+                  player.setAngularVelocity(0);
+            }
+                <!DOCTYPE html>
+                <html lang="en">
+
+                  <head>
+                    <meta charset="UTF-8">
+                      <title>Multiplayer Sailing Game</title>
+                      <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+    </head>
+
+    <body>
+      <script>
+                        const socket = io();
+
+                        // Initialize Phaser game
+                        const config = {
+                          mode: Phaser.Scale.Fit,
+                        width: window.innerWidth,
+                        height: window.innerHeight,
+                        scene: {
+                          preload: preload,
+                        create: create,
+                        update: update
+                  },
+                        physics: {
+                    default: 'arcade',
+                        arcade: {
+                          debug: false // Set to true for debugging physics
+                    }
+                  }
+                };
+
+                        const game = new Phaser.Game(config);
+                        let player, otherPlayers = { };
+                        let cursors;
+                        let dropAnchorButton;
+
+                        function preload() {
+                          this.load.image('ship', 'https://phaser.io/images/phaser3/sprites/spaceship.png');
+                }
+
+                        function create() {
+                          // Add player
+                          player = this.physics.add.sprite(400, 300, 'ship').setOrigin(0.5, 0.5).setScale(0.5); // Scale down ship size
+
+                        // Movement controls
+                        cursors = this.input.keyboard.createCursorKeys();
+
+                        // Add drop anchor button
+                        dropAnchorButton = this.add.text(20, 20, 'Drop Anchor', {fill: '#ffffff' }).setInteractive();
+                  dropAnchorButton.on('pointerdown', () => {
+                          player.body.setVelocity(0); // Stop the ship abruptly
+                  });
+
+                  // Handle new players
+                  socket.on('currentPlayers', (players) => {
+                          Object.keys(players).forEach((id) => {
+                            if (id !== socket.id) {
+                              addOtherPlayer(this, players[id]);
+                            }
+                          });
+                  });
+            
+                  socket.on('newPlayer', (playerInfo) => {
+                          addOtherPlayer(this, playerInfo);
+                  });
+            
+                  socket.on('playerMoved', (playerInfo) => {
+                    if (otherPlayers[playerInfo.id]) {
+                          otherPlayers[playerInfo.id].x = playerInfo.x;
+                        otherPlayers[playerInfo.id].y = playerInfo.y;
+                        otherPlayers[playerInfo.id].angle = playerInfo.angle;
+                    }
+                  });
+            
+                  socket.on('playerDisconnected', (id) => {
+                    if (otherPlayers[id]) {
+                          otherPlayers[id].destroy();
+                        delete otherPlayers[id];
+                    }
+                  });
+                }
+
+                        function update() {
+                  // Handle player movement
+                  if (cursors.up.isDown) {
+                          // Accelerate in the direction the ship is facing (slower acceleration)
+                          this.physics.velocityFromRotation(player.rotation, 200, player.body.acceleration);
+                  } else {
+                          // Slow down if not accelerating (higher inertia)
+                          player.body.setAcceleration(0);
+                  }
+
+                        if (cursors.left.isDown) {
+                          // Rotate left
+                          player.setAngularVelocity(-100); // Reduced rotation speed
+                  } else if (cursors.right.isDown) {
+                          // Rotate right
+                          player.setAngularVelocity(100); // Reduced rotation speed
+                  } else {
+                          player.setAngularVelocity(0);
+                  }
+
+                        // Teleport to opposite side if going out of bounds
+                        this.physics.world.wrap(player, 5);
+
+                        // Emit movement data
+                        const movement = {
+                          x: player.x,
+                        y: player.y,
+                        angle: player.angle
+                  };
+                        socket.emit('playerMovement', movement);
+                }
+
+                        function addOtherPlayer(self, playerInfo) {
+                  const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship').setOrigin(0.5, 0.5).setScale(0.5);
+                        otherPlayer.id = playerInfo.id;
+                        otherPlayers[playerInfo.id] = otherPlayer;
+                }
+      </script>
+    </body>
+
+</html>
+// Teleport to opposite side if going out of bounds
+this.physics.world.wrap(player, 5);
+
+// Emit movement data
+const movement = {
+x: player.x,
+y: player.y,
+angle: player.angle
+};
+socket.emit('playerMovement', movement);
+}
+
+function addOtherPlayer(self, playerInfo) {
+const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship').setOrigin(0.5, 0.5).setScale(0.5);
+otherPlayer.id = playerInfo.id;
+otherPlayers[playerInfo.id] = otherPlayer;
+}
+</script>
+</body>
+
+</html>t.isDown) {
+// Rotate left
+player.setAngularVelocity(-100); // Reduced rotation speed
+} else if (cursors.right.isDown) {
+// Rotate right
+player.setAngularVelocity(100); // Reduced rotation speed
+} else {
+player.setAngularVelocity(0);
+}
+
+// Teleport to opposite side if going out of bounds
+this.physics.world.wrap(player, 5);
+
+// Emit movement data
+const movement = {
+x: player.x,
+y: player.y,
+angle: player.angle
+};
+socket.emit('playerMovement', movement);
+}
+
+function addOtherPlayer(self, playerInfo) {
+const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship').setOrigin(0.5, 0.5).setScale(0.5);
+otherPlayer.id = playerInfo.id;
+otherPlayers[playerInfo.id] = otherPlayer;
+}
+</script>
+</body>
+
+</html>
